@@ -13,22 +13,35 @@ import java.util.Optional;
  */
 public class SequenceProperties {
 	/**
-	 * Provides types of "break before" rules for sequences
+	 * Provides types of "break before" and "break after" rules for sequences.
 	 */
-	public enum SequenceBreakBefore {
+	public enum SequenceBreak {
 		/**
-		 * Defines that volume breaks may or may not happen before this
-		 * sequence begins, depending on its location in the volume
+		 * The default value. It is like SHEET but leaving pages without content
+         * completely blank.
 		 */
 		AUTO,
+        /**
+         * Inserts a page break.  If there is a transition from duplex to
+         * simplex or visa versa, or the page dimensions don't match, then
+         * perform a sheet break. The PAGE value can be used to produce media
+         * without blank pages.
+         */
+        PAGE,
+        /**
+         * Inserts a sheet break. If this results in a page without content, it
+         * is paginated.
+         */
+        SHEET,
 		/**
-		 * Specifies that the sequence should start in a new volume
+		 * Inserts a volume break. This applies to text body sequences only.
 		 */
 		VOLUME
 	}
 	private final String masterName;
 	private final Integer initialPageNumber;
-	private final SequenceBreakBefore breakBefore;
+	private final SequenceBreak breakBefore;
+	private final SequenceBreak breakAfter;
 	private final Optional<String> pageCounterName;
 	/**
 	 * The Builder is used when creating a SequenceProperites instance 
@@ -40,7 +53,8 @@ public class SequenceProperties {
 		
 		//Optional parameters
 		Integer initialPageNumber = null;
-		SequenceBreakBefore breakBefore = SequenceBreakBefore.AUTO;
+		SequenceBreak breakBefore = SequenceBreak.AUTO;
+		SequenceBreak breakAfter = SequenceBreak.AUTO;
 		private String pageCounterName = null;
 		
 		/**
@@ -65,11 +79,21 @@ public class SequenceProperties {
 		
 		/**
 		 * Set the break before property for the sequence.
-		 * @param value the break before type
+		 * @param value the break type
 		 * @return returns "this" object
 		 */
-		public Builder breakBefore(SequenceBreakBefore value) {
+		public Builder breakBefore(SequenceBreak value) {
 			this.breakBefore = value;
+			return this;
+		}
+		
+		/**
+		 * Set the break after property for the sequence.
+		 * @param value the break type
+		 * @return returns "this" object
+		 */
+		public Builder breakAfter(SequenceBreak value) {
+			this.breakAfter = value;
 			return this;
 		}
 		
@@ -101,6 +125,7 @@ public class SequenceProperties {
 		this.masterName = builder.masterName;
 		this.initialPageNumber = builder.initialPageNumber;
 		this.breakBefore = builder.breakBefore;
+		this.breakAfter = builder.breakAfter;
 		this.pageCounterName = Optional.ofNullable(builder.pageCounterName);
 	}
 
@@ -124,8 +149,16 @@ public class SequenceProperties {
 	 * Get break before type
 	 * @return returns the break before type
 	 */
-	public SequenceBreakBefore getBreakBeforeType() {
+	public SequenceBreak getBreakBeforeType() {
 		return breakBefore;
+	}
+
+	/**
+	 * Get break after type
+	 * @return returns the break after type
+	 */
+	public SequenceBreak getBreakAfterType() {
+		return breakAfter;
 	}
 
 	/**
